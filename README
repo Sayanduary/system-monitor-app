@@ -1,0 +1,89 @@
+# System Monitor App
+
+A terminal-based, real-time system monitoring tool built with Node.js. It displays live stats for CPU, memory, disk, network, and top processes — all rendered directly in your terminal with colorful progress bars and intuitive keyboard navigation.
+
+---
+
+## Features
+
+- **CPU Usage** — Per-core usage with progress bars, average usage, and load averages (1m / 5m / 15m)
+- **Memory Usage** — Total, used, and free RAM with a visual progress bar
+- **Disk Usage** — Usage stats for the root partition (`/`)
+- **Network Stats** — Real-time download and upload speeds
+- **Top Processes** — Top 5 CPU-consuming processes with user, CPU%, MEM%, and command name
+- **Color-coded Metrics** — Green (< 50%), Yellow (< 75%), Red (>= 75%)
+- **Scrollable UI** — Navigate content taller than the terminal window
+- **Live Updates** — Refreshes every 1 second
+
+---
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or higher (ESM support required)
+- Linux OS (uses `/proc/net/dev` for network stats and `ps`/`df` commands)
+
+---
+
+## Installation
+
+1. Clone the repository or download the project files.
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## Usage
+
+```bash
+node app.js
+```
+
+The monitor will launch in the terminal's alternate buffer (your previous terminal content is preserved on exit).
+
+---
+
+## Keyboard Controls
+
+| Key                  | Action                        |
+|----------------------|-------------------------------|
+| `↑` / `k`            | Scroll up one line            |
+| `↓` / `j`            | Scroll down one line          |
+| `Page Up`            | Scroll up 10 lines            |
+| `Page Down`          | Scroll down 10 lines          |
+| `Home`               | Jump to top                   |
+| `End`                | Jump to bottom                |
+| `Ctrl + C`           | Exit the monitor              |
+
+---
+
+## Project Structure
+
+```
+system-monitor-app/
+├── app.js          # Main application entry point
+├── package.json    # Project metadata and dependencies
+└── README          # Project documentation
+```
+
+---
+
+## Dependencies
+
+| Package | Version | Purpose                        |
+|---------|---------|--------------------------------|
+| [chalk](https://github.com/chalk/chalk) | ^5.6.2 | Terminal string styling and colors |
+
+---
+
+## How It Works
+
+- **CPU**: Uses Node's built-in `os.cpus()` to compute per-core usage by diffing CPU times between intervals.
+- **Memory**: Reads total and free memory via `os.totalmem()` and `os.freemem()`.
+- **Disk**: Runs `df -h /` via `child_process.execSync` to get root partition stats.
+- **Network**: Reads `/proc/net/dev` and calculates bytes/sec between refresh intervals.
+- **Processes**: Runs `ps aux --sort=-%cpu` and takes the top 5 results.
+- The UI uses ANSI escape codes to write to an alternate terminal buffer and hides the cursor during runtime, restoring everything cleanly on exit.
